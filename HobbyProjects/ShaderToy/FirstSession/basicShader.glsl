@@ -12,19 +12,33 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // Take the aspect ratio of the canvas into account
     uv.x *= iResolution.x / iResolution.y;
 
+    // Keep track of original distance towards center of canvas.
     vec2 uv0 = uv;
+
+    // Final output color.
     vec3 finalColor = vec3(0.0);
 
-    for(float i = 0.0; i < 4.0; i++) {
+    // Fractal depth
+    float fractalDepth = 4.0;
+
+    for(float i = 0.0; i < fractalDepth; i++) {
+        // Make the shape a fractal & apply in the clipspace.
+        // Making the fractalOffSet a decimal number makes the fractal more intreseting to look at.
         uv = fract(uv * 1.5) - 0.5;
 
         float d = length(uv) * exp(-length(uv0));
 
-        vec3 col = palette(length(uv0) + i * .4 + iTime * .4) * .2;
+        // Offset gradiant over time.
+        float timeOffSet = 0.4;
+        // Include i within the palette to introduce more variation.
+        vec3 col = palette(length(uv0) + i * timeOffSet + iTime * timeOffSet);
 
-        d = sin(d * 8. + iTime) / 8.;
+        float amountOfSineWaves = 8.0;
+        // Multiply & devide by the amountOfSineWaves to compensate for the color intensity.
+        d = sin(d * amountOfSineWaves + iTime) / amountOfSineWaves;
         d = abs(d);
-        // Increase constrast
+
+        // Increase constrast.
         d = pow(0.01 / d, 1.2);
 
         finalColor += col * d;
